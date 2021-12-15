@@ -17,8 +17,8 @@
 
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="@string/title_notifications" />
+        android:icon="@drawable/ic_star_border_black_24dp"
+        android:title="Favorites" />
     <item
         android:id="@+id/next_menu"
         android:icon="@android:drawable/ic_media_next"

@@ -4,8 +4,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -24,7 +26,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
         TextView textViewName;
         TextView textViewVersion;
+        TextView textHowmanynotes;
         CardView parentView;
+        ImageButton imageButton, notesButton;
 //        ImageView imageViewIcon;
 
         public MyViewHolder(View itemView) {
@@ -32,9 +36,17 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             this.textViewName = (TextView) itemView.findViewById(R.id.textViewName);
             this.textViewVersion = (TextView) itemView.findViewById(R.id.textViewVersion);
             this.parentView = (CardView)itemView.findViewById(R.id.card_view);
+            this.imageButton = (ImageButton)itemView.findViewById(R.id.favorate);
+            this.notesButton = (ImageButton)itemView.findViewById(R.id.noteBtn);
+            this.textHowmanynotes = (TextView)itemView.findViewById(R.id.howManyNotes);
 
 //            this.imageViewIcon = (ImageView) itemView.findViewById(R.id.imageView);
             Log.d("adapter2", this.textViewName.toString());
+
+
+//            imageButton.setOnClickListener(
+//                    HomeFragment.myOnClickListener;
+//            );
 
 //            itemView.findViewById(R.id.prebtn).setOnClickListener(
 //                    HomeFragment.myOnClickListener
@@ -80,6 +92,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
         TextView textViewName = holder.textViewName;
         TextView textViewVersion = holder.textViewVersion;
+        ImageButton imageButton = holder.imageButton;
+        ImageButton notesButton = holder.notesButton;
+        TextView textHowmanynotes = holder.textHowmanynotes;
+
 //        ImageView imageView = holder.imageViewIcon;
 
 //        String name = dataSet.get(listPosition).getName();
@@ -95,24 +111,60 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         textViewName.setText(name == null ? "no data" : name);
         textViewVersion.setText(version == null ? "no data" : version);
 //        imageView.setImageResource(dataSet.get(listPosition).getImage());
-        updateCardColor(holder.parentView,name);
+        updateCardColor(holder.parentView,name,imageButton,notesButton);
+        updateStarButton(name,imageButton);
+        imageButton.setOnClickListener(HomeFragment.myOnClickListener);
+        notesButton.setOnClickListener(HomeFragment.myOnClickListener);
+        showHowmanynotes(textHowmanynotes, name);
+        hideNotes(textHowmanynotes, notesButton);
     }
-    private void updateCardColor(CardView view, String name){
+    private void showHowmanynotes(TextView view, String title){
+        int notes = MainActivity.notesData.hasHowmanynotes(title);
+        if(notes == 0)
+            view.setText("");
+        else
+            view.setText("" + notes);
+    }
+    private void updateStarButton(String name, ImageButton imageButton){
+        if(MainActivity.starData.isStar(name))
+            imageButton.setImageResource(R.drawable.ic_star_gold_24dp);
+    }
+    private void updateCardColor(CardView view, String name, ImageButton imageButton, ImageButton notesButton){
         if(name.startsWith("[ESV]")){
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.esv));
+            view.setTag("esv");
+            imageButton.setTag(name);
+            notesButton.setTag(name);
+//            imageButton.setTag("esv");
             setEffect(view);
+            hideCard(view, "esv");
         }
-        if(name.startsWith("[KJV]")){
+        else if(name.startsWith("[KJV]")){
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.kjv));
+            view.setTag("kjv");
+            imageButton.setTag(name);
+            notesButton.setTag(name);
+//            imageButton.setTag("kjv");
             setEffect(view);
+            hideCard(view, "kjv");
         }
-        if(name.startsWith("[NIV]")){
+        else if(name.startsWith("[NIV]")){
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.niv));
+            view.setTag("niv");
+            imageButton.setTag(name);
+            notesButton.setTag(name);
+//            imageButton.setTag("niv");
             setEffect(view);
+            hideCard(view, "niv");
         }
-        if(name.startsWith("[NLT]")){
-            setEffect(view);
+        else if(name.startsWith("[NLT]")){
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.nlt));
+            view.setTag("nlt");
+            imageButton.setTag(name);
+            notesButton.setTag(name);
+//            imageButton.setTag("nlt");
+            setEffect(view);
+            hideCard(view, "nlt");
         }
 
     }
@@ -122,11 +174,31 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
 //        view.setContentPadding(10,10,10,10);
 //        view.setPreventCornerOverlap(true);
+
+    }
+    private void hideCard(CardView view, String book){
+        if(!MainActivity.settingsData.isSettings(book))
+            view.setVisibility(View.GONE);
+        else{
+            if(!view.isShown())
+                view.setVisibility(View.VISIBLE);
+        }
+
+    }
+    private void hideNotes(TextView text, ImageButton view){
+        text.setVisibility(View.GONE);
+        view.setVisibility(View.GONE);
     }
 
     @Override
     public int getItemCount() {
         return dataSet.size();
+    }
+
+    public String getFirstItem(){
+        if(dataSet.size() > 0)
+        return dataSet.get(0).getBody();
+        else return "";
     }
 
     public void removeAt(int position, ArrayList<BibleModel> data) {

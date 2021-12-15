@@ -22,7 +22,7 @@ public class BibleModel {
         this.body = body;
     }
     public BibleModel(){
-
+//        this.data = new BibleData();
     }
 
     public String getName() {

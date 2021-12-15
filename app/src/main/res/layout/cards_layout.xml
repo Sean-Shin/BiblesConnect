@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     android:layout_marginTop="10dp"
-                    android:text="Bible Chapter Verse"
+                    android:text="Book Chapter Verse"
                     android:textAppearance="?android:attr/textAppearanceSearchResultSubtitle" />
 
                 <TextView
@@ -48,6 +48,37 @@
                     android:layout_marginTop="10dp"
                     android:text="Genesis 1 1"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    >
+                    <TextView
+                        android:id="@+id/howManyNotes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:text="0"/>
+                    <ImageButton
+                        android:id="@+id/noteBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:background="@null"
+                        android:paddingRight="8dp"
+                        android:src="@drawable/ic_note_add_black_24dp"
+                        />
+                    <ImageButton
+                        android:id="@+id/favorate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:background="@null"
+                        android:paddingRight="8dp"
+                        android:src="@drawable/ic_star_border_black_24dp"
+                        />
+                </LinearLayout>
+
 
             </LinearLayout>
 

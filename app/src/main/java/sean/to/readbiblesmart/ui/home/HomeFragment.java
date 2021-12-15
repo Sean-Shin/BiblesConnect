@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +14,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -39,9 +45,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import sean.to.readbiblesmart.CustomAdapter;
 import sean.to.readbiblesmart.MainActivity;
+import sean.to.readbiblesmart.NotesActivity;
 import sean.to.readbiblesmart.R;
 import sean.to.readbiblesmart.data.BibleData;
 import sean.to.readbiblesmart.data.BibleModel;
@@ -61,9 +70,30 @@ public class HomeFragment extends Fragment {
     private static SearchView editsearch;
     private static ListView listView;
     private static String previousQuery;
+//    private ActivityResultLauncher<Intent> activityResultLauncher;
+    ImageButton imageButton;
     ArrayList<String> list;
     ArrayAdapter<String > listadapter;
 
+//    Timer timer;
+//    TimerTask timerTask;
+//    final Handler handler = new Handler();
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                // There are no request codes
+                Intent data = result.getData();
+                String query = data.getExtras().getString("title");
+                Log.d("---++++--", "result ok " + query);
+                updateKeyword(query);
+            }
+            Log.d("---++++--", "result ok " + result.getResultCode());
+        }
+    });
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +109,8 @@ public class HomeFragment extends Fragment {
 //        });
 
 
-        previousQuery = "";
+        Log.d("-----", "home:onCreateView");
+        previousQuery = MainActivity.previousQuery;//"";
         editsearch = (SearchView) root.findViewById(R.id.searchbar);
         data = new ArrayList<BibleModel>();
 
@@ -114,6 +145,7 @@ public class HomeFragment extends Fragment {
 //                }
 
                 updateBible(query);
+//                displayBible(query);
 //                Toast.makeText(root.getContext(), query, Toast.LENGTH_LONG).show();
 
                 return false;
@@ -158,7 +190,9 @@ public class HomeFragment extends Fragment {
 
         todayBible();
 
-        if(!isLoadingDone())
+        if(MainActivity.previousQuery != null && MainActivity.previousQuery.length() > 0){
+            updateKeyword(MainActivity.previousQuery);
+        }else if(!isLoadingDone())
             showLicense();
 
 
@@ -189,11 +223,18 @@ public class HomeFragment extends Fragment {
                     updateBible(query);
                     updateKeyword(query );
                 }
+
+                String resultForKeywordUpdate = bundle.getString("loadingdone");
+                if(resultForKeywordUpdate != null){
+                    updateKeyword(MainActivity.previousQuery);
+                }
                 // Do something with the result
             }
         });
 
 //        setMargin(savedInstanceState);
+
+        guideText();
 
 
         return root;
@@ -203,6 +244,20 @@ public class HomeFragment extends Fragment {
 //        if(button != null)
 //            button.setPaintFlags(button.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 //    }
+    private void starbutton(){
+//        imageButton = (ImageButton) getActivity().findViewById(R.id.favorate);
+//        imageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                v.getId
+//            }
+//        });
+    }
+    private void guideText(){
+        TextView view = (TextView)getActivity().findViewById(R.id.guideMessage);
+        if(view != null)
+            view.setText(R.string.guideText);
+    }
     private void setMargin(Bundle savedInstanceState ){
         final FrameLayout frameLayout = (FrameLayout)getActivity().findViewById(R.id.biblecard);
 
@@ -211,6 +266,17 @@ public class HomeFragment extends Fragment {
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) frameLayout.getLayoutParams();
             //left, top, right, bottom
             params.setMargins(0, 0, 0, new ScreenUtil().getActionBarHeight(getContext()));
+            frameLayout.setLayoutParams(params);
+        }
+    }
+    private void removeMargin(Bundle savedInstanceState ){
+        final FrameLayout frameLayout = (FrameLayout)getActivity().findViewById(R.id.biblecard);
+
+        if ((frameLayout != null)){
+//                && (savedInstanceState == null)) {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) frameLayout.getLayoutParams();
+            //left, top, right, bottom
+            params.setMargins(0, 0, 0, 0);
             frameLayout.setLayoutParams(params);
         }
     }
@@ -234,11 +300,22 @@ public class HomeFragment extends Fragment {
 
         String[] result = new BibleUtil().parseQuery(query);
         boolean isSamequery = false;
+        boolean loadingDone = isLoadingDone();
         if(checksame){
-           isSamequery =  previousQuery.equals(query);
+            if(previousQuery.equals(query) &&
+                    !((CustomAdapter)adapter).getFirstItem().startsWith("Scripture taken from"))
+            isSamequery = true;
+            Log.d("******","1"+isSamequery);
+            Log.d("******",((CustomAdapter)adapter).getFirstItem());
+        }else{
+            loadingDone = true;
+        }
+        if(MainActivity.previousBottomButton == R.id.navigation_home){
+            isSamequery = false;
+            Log.d("******","2"+isSamequery);
         }
 
-        if(!isSamequery && result!= null && isLoadingDone()){
+        if(!isSamequery && result != null && loadingDone){
 //                && result[0] !=null && result[1] != null && result[2] != null) {
 
 //                    BibleModel bm = readJsonFile(result[0], result[1], result[2]);
@@ -252,12 +329,15 @@ public class HomeFragment extends Fragment {
 
             String newQuery = result[0] + " " + result[1] + " " + result[2];
             previousQuery = newQuery;
+            Log.d("******", "new " + newQuery);
 
         }else{
+            Log.d("******","query same or nothing " + isLoadingDone());
 //            Toast.makeText(this.getContext(), "Input a keyword. ex) John 1 1",Toast.LENGTH_LONG).show();
             return;
         }
     }
+
     public boolean isLoadingDone(){
         if(MainActivity.esvloadingdone && MainActivity.kjvloadingdone && MainActivity.nivloadingdone && MainActivity.nltloadingdone)
             return true;
@@ -321,7 +401,9 @@ public class HomeFragment extends Fragment {
 
     }
     public void updateKeyword(String newQuery){
+//        editsearch.requestFocus();
         editsearch.setQuery(newQuery,true);
+
     }
     public void preBible(String pQuery){
         String query = pQuery;
@@ -409,6 +491,27 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+            Log.d("***","onClick");
+            if(v.getId() == R.id.favorate){
+                Log.d("***","star");
+                String tag = (String)v.getTag();
+                Log.d("***",tag); // title
+
+                if(MainActivity.starData.isStar(tag)){
+                    changeStar(v,false);
+                    MainActivity.starData.setStar(tag,false);
+                }else{
+                    changeStar(v,true);
+                    MainActivity.starData.setStar(tag,true);
+                }
+
+//                Toast.makeText(context, "star",Toast.LENGTH_SHORT).show();
+            }else if(v.getId() == R.id.noteBtn){
+                String tag = (String)v.getTag();
+                startNotes(tag);
+            }else{
+//                Toast.makeText(context, "else",Toast.LENGTH_SHORT).show();
+            }
 //            removeItem(v);
 //            Log.d("click", " " + v.getId());
 //            if(v.getId() == R.id.nextbtn){
@@ -425,8 +528,23 @@ public class HomeFragment extends Fragment {
 //                Toast.makeText(context, "else",Toast.LENGTH_LONG).show();
 //            }
         }
+        public void changeStar(View v, boolean clickbtn){
 
+            ImageButton imageButton = (ImageButton)v;
+            if(clickbtn){
+                ((ImageButton) v).setImageResource(R.drawable.ic_star_gold_24dp);
+            }else{
+                ((ImageButton) v).setImageResource(R.drawable.ic_star_border_black_24dp);
+            }
 
+        }
+
+        public void startNotes(String tag){
+            Intent intent = new Intent(getActivity().getApplicationContext(), NotesActivity.class);
+            intent.putExtra("title", tag);
+//            startActivity(intent);
+            activityResultLauncher.launch(intent);
+        }
 
 
 //        private void removeItem(View v) {
@@ -462,26 +580,89 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onStart() {
-        super.onStart();
-        if(previousQuery.length() == 0){
-            String query = readBibleLast();
-            Log.d("**read",query );
-//            displayBible(query);
-//            showLicense();
-            updateKeyword(query);
-        }
-        if(editsearch.getQuery().length() == 0){
+
+        Log.d("**","home:onStart" );
+        previousQuery = readBibleLast();
+        updateKeyword(previousQuery);
+//        MainActivity.previousQuery;
+//        if(previousQuery.length() == 0){
+//            String query = readBibleLast();
+//            String keyword = query;
+//            Log.d("**read",query );
+////            displayBible(query);
+////            showLicense();
+//            updateKeyword(query);
+////            displayBible(keyword);
+////            removeMargin(null);
+////            startTimer();
+//
+//
+//        }else{
+//            updateKeyword(previousQuery);
+//        }
+        if(data.size() == 0){ //editsearch.getQuery().length() == 0){
             showLicense();
         }
+//        else{
+//            updateBible(editsearch.getQuery().toString());
+//        }
+
 
 //        underlineButton();
+        super.onStart();
     }
 
+    @Override
+    public void onStop() {
+
+        super.onStop();
+    }
 
     @Override
     public void onDestroy() {
         saveBibleRead(previousQuery);
         Log.d("**save",previousQuery );
+        MainActivity.previousQuery = previousQuery;
+//        stoptimertask(null);
         super.onDestroy();
     }
+
+//    public void startTimer() {
+//        //set a new Timer
+//        timer = new Timer();
+//
+//        //initialize the TimerTask's job
+//        initializeTimerTask();
+//
+//        //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
+//        timer.schedule(timerTask, 5000, 10000); //
+//
+//        if(isLoadingDone())
+//            stoptimertask(null);
+//    }
+//
+//    public void stoptimertask(View v) {
+//        //stop the timer, if it's not already null
+//        if (timer != null) {
+//            timer.cancel();
+//            timer = null;
+//        }
+//    }
+//
+//    public void initializeTimerTask() {
+//
+//        timerTask = new TimerTask() {
+//            public void run() {
+//
+//                //use a handler to run a toast that shows the current timestamp
+//                handler.post(new Runnable() {
+//                    public void run() {
+////                        String query = readBibleLast();
+//                        updateKeyword(previousQuery);
+//                    }
+//                });
+//            }
+//        };
+//    }
+
 }

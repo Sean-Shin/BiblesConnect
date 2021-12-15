@@ -185,6 +185,10 @@ public class BibleUtil {
         data.add(nlt);
         return data;
     }
+    public String readBible(String book, String bible, String chapter, String verse){
+        BibleModel  result = readJsonFile(book, bible, chapter,verse);
+        return result.getBody();
+    }
     public JSONObject loadBilble(String bibleType){
         JSONObject obj = null;
         switch (bibleType){
@@ -202,6 +206,43 @@ public class BibleUtil {
                 break;
         }
         return obj;
+    }
+    public String readBody(String query){
+        return readBody(query, false);
+    }
+    public String readBody(String query, boolean hasTitle){
+        String book = "esv";
+        String title = query;
+        int index = 6;
+        if(query.startsWith("[ESV]")){
+            query = query.substring(index);
+            Log.d("=========",query);
+        }
+        if(query.startsWith("[KJV]")){
+            query = query.substring(index);
+            book = "kjv";
+            Log.d("=========",query);
+        }
+        if(query.startsWith("[NIV]")){
+            query = query.substring(index);
+            book = "niv";
+            Log.d("=========",query);
+        }
+        if(query.startsWith("[NLT]")){
+            query = query.substring(index);
+            book = "nlt";
+            Log.d("=========",query);
+        }
+        String[] result = new BibleUtil().parseQuery(query);
+        String body = new BibleUtil().readBible(book,result[0], result[1], result[2]);
+
+        if(hasTitle)
+            return title + "\n\n"+ body;
+        else
+            return body;
+    }
+    public String readVerse(String query){
+        return  readBody(query, true);
     }
 
 }

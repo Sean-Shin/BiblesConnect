@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,7 +36,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import sean.to.readbiblesmart.data.NotesData;
+import sean.to.readbiblesmart.data.SettingsData;
+import sean.to.readbiblesmart.data.StarData;
 import sean.to.readbiblesmart.ui.dashboard.DashboardFragment;
 import sean.to.readbiblesmart.ui.home.HomeFragment;
 import sean.to.readbiblesmart.ui.notifications.NotificationsFragment;
@@ -52,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
     public static HomeFragment homeFragment;
     public static DashboardFragment dashboardFragment;
     public static boolean esvloadingdone, kjvloadingdone ,nivloadingdone ,nltloadingdone;
+    public static StarData starData;
+    public static NotesData notesData;
+    public static SettingsData settingsData;
+    public static int previousBottomButton;
+    public static String previousQuery;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +75,17 @@ public class MainActivity extends AppCompatActivity {
         kjvloadingdone = false;
         nivloadingdone = false;
         nltloadingdone = false;
+        previousQuery = "";
+
+        starData = new StarData();
+        starData.readStarData(context);
+
+        settingsData = new SettingsData();
+        settingsData.readSettingsData(context);
+
+        notesData = new NotesData();
+        notesData.readNoteData(context);
+
 
 //        ActionBar actionBar = getSupportActionBar();
 
@@ -127,23 +150,29 @@ public class MainActivity extends AppCompatActivity {
                         Fragment selectedFragment = null;
                         switch (menuItem.getItemId()) {
                             case R.id.pre_menu:
+                                checkWhichTab();
                                 sendMessageToFragment("pre");
-
+                                previousBottomButton = R.id.pre_menu;
                                 Log.d("****", "pre item");
                                 break;
                             case R.id.next_menu:
+                                checkWhichTab();
                                 sendMessageToFragment("next");
+                                previousBottomButton = R.id.next_menu;
                                 Log.d("****", "next item");
 
                                 break;
                             case R.id.navigation_home:
                                 activateFragment(menuItem.getItemId());
+                                previousBottomButton = R.id.navigation_home;
                                 break;
                             case R.id.navigation_dashboard:
                                 activateFragment(menuItem.getItemId());
+                                previousBottomButton = R.id.navigation_dashboard;
                                 break;
                             case R.id.navigation_notifications:
                                 activateFragment(menuItem.getItemId());
+                                previousBottomButton = R.id.navigation_notifications;
                                 break;
                         }
 //                        FragmentTransaction transaction =
@@ -159,6 +188,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    public void checkWhichTab(){
+        if(previousBottomButton == R.id.navigation_dashboard
+                || previousBottomButton == R.id.navigation_notifications ){
+            activateFragment(R.id.navigation_home);
+        }
+    }
     public void activateFragment(int rId){
 //        GalleryFragment frag = new GalleryFragment();
 //        FragmentManager ft = getFragmentManager();
@@ -168,8 +203,6 @@ public class MainActivity extends AppCompatActivity {
 //        fragmentTransaction.commit();
 //        DashboardFragment frag = new DashboardFragment();
         FragmentManager ft = getSupportFragmentManager();
-
-
 
         FragmentTransaction fragmentTransaction =ft.beginTransaction();
 //        HomeFragment frag = (HomeFragment)ft.findFragmentById(R.id.navigation_home);
@@ -344,15 +377,65 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+//        if(previousBottomButton != R.id.navigation_home)
         activateFragment(R.id.navigation_home);
-
     }
     private void updateActionBarTitle(){
         getSupportActionBar().setTitle(R.string.app_nickname);
         getSupportActionBar().setSubtitle("Bibles at a once");
-
     }
 
+    @Override
+    protected void onStop() {
+        starData.saveStarData(context);
+        settingsData.saveSettingsData(context);
+        notesData.saveNoteData(context);
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settingsButton:
+                startSettings();
+                break;
+            case R.id.aboutBtn:
+                startAbout();
+//                startNotes();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private void startSettings(){
+        Intent intent = new Intent(this, SettingsActivity.class);
+//        EditText editText = (EditText) findViewById(R.id.editTextTextPersonName);
+//        String message = editText.getText().toString();
+//        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+    }
+    private void startAbout(){
+        Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
+    }
+
+
+//    public void startNotes(){
+//        Intent intent = new Intent(this, NotesActivity.class);
+//        startActivity(intent);
+//    }
     private class AsyncBibleLoading extends AsyncTask<String,String, JSONObject>{
         @Override
         protected void onPreExecute() {
@@ -417,6 +500,8 @@ public class MainActivity extends AppCompatActivity {
                            nltloadingdone = true;
                            break;
                    }
+                   if(isLoadingDone())
+                        sendMessageToFragment("loadingdone");
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -432,6 +517,11 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             return null;
+        }
+        public boolean isLoadingDone(){
+            if(esvloadingdone && kjvloadingdone && nivloadingdone && nltloadingdone)
+                return true;
+            return false;
         }
     }
 
