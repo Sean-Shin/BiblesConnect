@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import sean.to.readbiblesmart.data.NoteModel;
+import sean.to.readbiblesmart.util.Util;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.MyViewHolder>  {
     private ArrayList<NoteModel> dataSet;
@@ -36,7 +37,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.MyViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.notes_items, parent, false);
 
-        Log.d("N:onCreateViewHolder",view == null ? "null" : "valid");
+        new Util().printLog("N:onCreateViewHolder",view == null ? "null" : "valid");
 
 //        view.setOnClickListener(HomeFragment.myOnClickListener);
 
@@ -51,11 +52,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.MyViewHolder
         if(dataSet.size() == 0) return;
         if(dataSet.get(position) == null) return;
 
+
         String body = dataSet.get(position).getBody();
         String date = dataSet.get(position).getDate();
 
-        Log.d("N:onBindViewHolder", body );
-        Log.d("N:onBindViewHolder", body == null ? "null" : "valid");
+        new Util().printLog("N:onBindViewHolder", body );
+        new Util().printLog("N:onBindViewHolder", body == null ? "null" : "valid");
 
         textView.setText(body == null ? "no data" : body);
         dateView.setText(date == null ? "no data" : date);
@@ -64,5 +66,12 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.MyViewHolder
     @Override
     public int getItemCount() {
         return dataSet.size();
+    }
+
+    public void removeAt(int position, ArrayList<NoteModel> data) {
+        data.remove(position);
+
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, data.size());
     }
 }

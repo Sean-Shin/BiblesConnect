@@ -80,18 +80,19 @@ public class NotesActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 String note = comment.getText().toString();
-                Log.d("---click---", note + "," + title );
+                new Util().printLog("---click---", note + "," + title );
                 if(note.length() > 0){
                     NoteModel model = new NoteModel(note, new Util().getToday(),Integer.toString(data.size()+1));
                     data.add(0, model);
-//                    MainActivity.notesData.putNotes(title, note);
-                    MainActivity.notesData.notelist = MainActivity.notesData.putNotes(title, note, MainActivity.notesData.notelist);
-                    Log.d("------", ""+data.size() );
+                    MainActivity.notesData.putNotes(title, note);
+//                    MainActivity.notesData.notelist = MainActivity.notesData.putNotes(title, note, MainActivity.notesData.notelist);
+                    new Util().printLog("------", ""+data.size() );
                     adapter.notifyDataSetChanged();
                     showHowmanycomments(data.size());
                 }
             }
         });
+
 
         cardDeco(title);
 
@@ -107,6 +108,12 @@ public class NotesActivity extends AppCompatActivity {
     }
     public void cardDeco(String title){
         CardView view = findViewById(R.id.bible);
+
+        if(title == null) {
+            view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.esv));
+            return;
+        }
+
         if(title.startsWith("[ESV]")) {
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.esv));
         }
@@ -122,11 +129,11 @@ public class NotesActivity extends AppCompatActivity {
     }
     public ArrayList<NoteModel> readNotes(String tag, ArrayList<NoteModel> data){
         JSONObject result = MainActivity.notesData.getNotes(tag);
-        Log.d("---read---", MainActivity.notesData.notelist.toString());
+        new Util().printLog("---read---", MainActivity.notesData.notelist.toString());
         if(result != null){
             try {
                 int total = result.getInt("total");
-                Log.d("------", tag + "," + total );
+                new Util().printLog("------", tag + "," + total );
                 for(int i=total; i > 0; i--){
 
 //                    String body = result.getString(""+i);

@@ -46,6 +46,7 @@ import sean.to.readbiblesmart.ui.dashboard.DashboardFragment;
 import sean.to.readbiblesmart.ui.home.HomeFragment;
 import sean.to.readbiblesmart.ui.notifications.NotificationsFragment;
 import sean.to.readbiblesmart.util.BibleUtil;
+import sean.to.readbiblesmart.util.Util;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -146,20 +147,21 @@ public class MainActivity extends AppCompatActivity {
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                        Log.d("****", "onNavigationItemSelected");
+
+                        new Util().printLog("","onNavigationItemSelected");
                         Fragment selectedFragment = null;
                         switch (menuItem.getItemId()) {
                             case R.id.pre_menu:
                                 checkWhichTab();
                                 sendMessageToFragment("pre");
                                 previousBottomButton = R.id.pre_menu;
-                                Log.d("****", "pre item");
+                                new Util().printLog("****", "pre item");
                                 break;
                             case R.id.next_menu:
                                 checkWhichTab();
                                 sendMessageToFragment("next");
                                 previousBottomButton = R.id.next_menu;
-                                Log.d("****", "next item");
+                                new Util().printLog("****", "next item");
 
                                 break;
                             case R.id.navigation_home:

@@ -37,7 +37,7 @@ public class NotesData  {
 
                 list.put(title,previousObject);
 
-                Log.d("--put--", list.toString());
+                new Util().printLog("--put--", list.toString());
 
             }else{
                 addNotes(note,title);
@@ -66,7 +66,7 @@ public class NotesData  {
 
                 notelist.put(title,previousObject);
 
-                Log.d("--put--", notelist.toString());
+                new Util().printLog("--put--", notelist.toString());
 
             }else{
                 addNotes(note,title);
@@ -79,7 +79,7 @@ public class NotesData  {
     }
     public int hasHowmanynotes(String title){
         try {
-            Log.d("-notes--how-", notelist.toString());
+            new Util().printLog("-notes--how-", notelist.toString());
             JSONObject previousObject = notelist.has(title) ? notelist.getJSONObject(title) : null;
             if (previousObject != null) {
 //                int total = 0;
@@ -97,7 +97,9 @@ public class NotesData  {
         return 0;
     }
     public String expressionNotes(int notes){
-        if(notes == 1)
+        if(notes == 0)
+            return "new note";
+        else if(notes == 1)
             return "" +  notes + " note";
         else
             return "" +  notes + " notes";
@@ -114,7 +116,7 @@ public class NotesData  {
             noteObject.put("1", bodyObject);
 
             notelist.put(title,noteObject);
-            Log.d("---add-", notelist.toString());
+            new Util().printLog("---add-", notelist.toString());
         }catch (JSONException e){
             e.printStackTrace();
         }

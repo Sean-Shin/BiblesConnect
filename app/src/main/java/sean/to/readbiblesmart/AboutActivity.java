@@ -21,6 +21,7 @@ public class AboutActivity extends AppCompatActivity {
 
         TextView textView = findViewById(R.id.aboutText);
         textView.setText(getResources().getString(R.string.myself)
+                + getResources().getString(R.string.version)
                 + "\n\n" + getResources().getString(R.string.license_overview)
                 + "\n\n" + getResources().getString(R.string.license));
 

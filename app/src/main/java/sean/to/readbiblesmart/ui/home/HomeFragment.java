@@ -57,6 +57,7 @@ import sean.to.readbiblesmart.data.BibleModel;
 import sean.to.readbiblesmart.data.BibleNames;
 import sean.to.readbiblesmart.util.BibleUtil;
 import sean.to.readbiblesmart.util.ScreenUtil;
+import sean.to.readbiblesmart.util.Util;
 
 public class HomeFragment extends Fragment {
 
@@ -88,10 +89,10 @@ public class HomeFragment extends Fragment {
                 // There are no request codes
                 Intent data = result.getData();
                 String query = data.getExtras().getString("title");
-                Log.d("---++++--", "result ok " + query);
+                new Util().printLog("---++++--", "result ok " + query);
                 updateKeyword(query);
             }
-            Log.d("---++++--", "result ok " + result.getResultCode());
+            new Util().printLog("---++++--", "result ok " + result.getResultCode());
         }
     });
 
@@ -109,7 +110,7 @@ public class HomeFragment extends Fragment {
 //        });
 
 
-        Log.d("-----", "home:onCreateView");
+        new Util().printLog("-----", "home:onCreateView");
         previousQuery = MainActivity.previousQuery;//"";
         editsearch = (SearchView) root.findViewById(R.id.searchbar);
         data = new ArrayList<BibleModel>();
@@ -165,10 +166,10 @@ public class HomeFragment extends Fragment {
 
 //        recyclerView.setHasFixedSize(true);
 
-//        Log.d("test", getActivity().toString());
-//        Log.d("test", recyclerView.toString());
-//        Log.d("test", root.toString());
-//        Log.d("test", container.toString());
+//        new Util().printLog("test", getActivity().toString());
+//        new Util().printLog("test", recyclerView.toString());
+//        new Util().printLog("test", root.toString());
+//        new Util().printLog("test", container.toString());
 
         layoutManager = new LinearLayoutManager(getActivity());
 //        layoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -196,7 +197,7 @@ public class HomeFragment extends Fragment {
             showLicense();
 
 
-//        Log.d("test", data.toString());
+//        new Util().printLog("test", data.toString());
 
         adapter = new CustomAdapter(data);
         recyclerView.setAdapter(adapter);
@@ -303,16 +304,19 @@ public class HomeFragment extends Fragment {
         boolean loadingDone = isLoadingDone();
         if(checksame){
             if(previousQuery.equals(query) &&
-                    !((CustomAdapter)adapter).getFirstItem().startsWith("Scripture taken from"))
-            isSamequery = true;
-            Log.d("******","1"+isSamequery);
-            Log.d("******",((CustomAdapter)adapter).getFirstItem());
+                    !((CustomAdapter)adapter).getFirstItem().startsWith("Scripture taken from")){
+                isSamequery = true;
+
+            }
+
+            new Util().printLog("******","1"+isSamequery);
+            new Util().printLog("******",((CustomAdapter)adapter).getFirstItem());
         }else{
             loadingDone = true;
         }
         if(MainActivity.previousBottomButton == R.id.navigation_home){
             isSamequery = false;
-            Log.d("******","2"+isSamequery);
+            new Util().printLog("******","2"+isSamequery);
         }
 
         if(!isSamequery && result != null && loadingDone){
@@ -329,10 +333,10 @@ public class HomeFragment extends Fragment {
 
             String newQuery = result[0] + " " + result[1] + " " + result[2];
             previousQuery = newQuery;
-            Log.d("******", "new " + newQuery);
+            new Util().printLog("******", "new " + newQuery);
 
         }else{
-            Log.d("******","query same or nothing " + isLoadingDone());
+            new Util().printLog("******","query same or nothing " + isLoadingDone());
 //            Toast.makeText(this.getContext(), "Input a keyword. ex) John 1 1",Toast.LENGTH_LONG).show();
             return;
         }
@@ -349,7 +353,7 @@ public class HomeFragment extends Fragment {
     }
     public void nextBible(String pQuery){
         String query = pQuery;
-        Log.d("nextBible", query);
+        new Util().printLog("nextBible", query);
         String[] result = new BibleUtil().parseQuery(query);
 
         if(result == null){
@@ -376,7 +380,7 @@ public class HomeFragment extends Fragment {
 
         if(newIndex > lastVersus){
             int ch = chapter + 1;
-            Log.d("***", " "+ index +","+ch + ","+ lastChapter);
+            new Util().printLog("***", " "+ index +","+ch + ","+ lastChapter);
             if(ch > lastChapter){
                 result[0] = BibleData.bibleNames[index+1];
                 result[1] = "1";
@@ -407,7 +411,7 @@ public class HomeFragment extends Fragment {
     }
     public void preBible(String pQuery){
         String query = pQuery;
-        Log.d("nextBible", query);
+        new Util().printLog("nextBible", query);
         String[] result = new BibleUtil().parseQuery(query);
 
         if(result == null){
@@ -438,7 +442,7 @@ public class HomeFragment extends Fragment {
             int lastChapter = new BibleModel().getLastChapter(index-1);
             int lastVersus = BibleData.verses[index-1][lastChapter-1];
 
-            Log.d("***", " "+ index +","+ lastVersus + ","+ lastChapter);
+            new Util().printLog("***", " "+ index +","+ lastVersus + ","+ lastChapter);
             if(ch <=0 ){
                 result[0] = BibleData.bibleNames[index-1];
                 result[1] = ""+lastChapter;
@@ -491,11 +495,11 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Log.d("***","onClick");
+            new Util().printLog("***","onClick");
             if(v.getId() == R.id.favorate){
-                Log.d("***","star");
+                new Util().printLog("***","star");
                 String tag = (String)v.getTag();
-                Log.d("***",tag); // title
+                new Util().printLog("***",tag); // title
 
                 if(MainActivity.starData.isStar(tag)){
                     changeStar(v,false);
@@ -513,7 +517,7 @@ public class HomeFragment extends Fragment {
 //                Toast.makeText(context, "else",Toast.LENGTH_SHORT).show();
             }
 //            removeItem(v);
-//            Log.d("click", " " + v.getId());
+//            new Util().printLog("click", " " + v.getId());
 //            if(v.getId() == R.id.nextbtn){
 //                //Intent
 //                changeBible("next", previousQuery);
@@ -535,6 +539,7 @@ public class HomeFragment extends Fragment {
                 ((ImageButton) v).setImageResource(R.drawable.ic_star_gold_24dp);
             }else{
                 ((ImageButton) v).setImageResource(R.drawable.ic_star_border_black_24dp);
+
             }
 
         }
@@ -581,14 +586,14 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
 
-        Log.d("**","home:onStart" );
+        new Util().printLog("**","home:onStart" );
         previousQuery = readBibleLast();
         updateKeyword(previousQuery);
 //        MainActivity.previousQuery;
 //        if(previousQuery.length() == 0){
 //            String query = readBibleLast();
 //            String keyword = query;
-//            Log.d("**read",query );
+//            new Util().printLog("**read",query );
 ////            displayBible(query);
 ////            showLicense();
 //            updateKeyword(query);
@@ -621,7 +626,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroy() {
         saveBibleRead(previousQuery);
-        Log.d("**save",previousQuery );
+        new Util().printLog("**save",previousQuery );
         MainActivity.previousQuery = previousQuery;
 //        stoptimertask(null);
         super.onDestroy();
@@ -666,3 +671,24 @@ public class HomeFragment extends Fragment {
 //    }
 
 }
+
+
+//
+//<TextView
+//                        android:id="@+id/howManyNotes"
+//                                android:layout_width="wrap_content"
+//                                android:layout_height="wrap_content"
+//                                android:layout_gravity="right"
+//                                android:paddingRight="8dp"
+//
+//                                android:text="0"/>
+//
+//<ImageButton
+//                        android:id="@+id/noteBtn1"
+//                                android:layout_width="wrap_content"
+//                                android:layout_height="wrap_content"
+//                                android:layout_gravity="right"
+//                                android:background="@null"
+//                                android:paddingRight="32dp"
+//                                android:src="@drawable/ic_create_black_24dp" />
+//                    

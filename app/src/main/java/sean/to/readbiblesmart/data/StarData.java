@@ -29,6 +29,7 @@ public class StarData {
             e.printStackTrace();
         }
     }
+
     public void setStar(String title){
         setStar(title,true);
     }

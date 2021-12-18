@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 
 import sean.to.readbiblesmart.data.BibleModel;
 import sean.to.readbiblesmart.ui.home.HomeFragment;
+import sean.to.readbiblesmart.util.Util;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHolder> {
 
@@ -28,7 +30,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         TextView textViewVersion;
         TextView textHowmanynotes;
         CardView parentView;
-        ImageButton imageButton, notesButton;
+        ImageButton imageButton;
+        Button notesButton;
 //        ImageView imageViewIcon;
 
         public MyViewHolder(View itemView) {
@@ -37,11 +40,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             this.textViewVersion = (TextView) itemView.findViewById(R.id.textViewVersion);
             this.parentView = (CardView)itemView.findViewById(R.id.card_view);
             this.imageButton = (ImageButton)itemView.findViewById(R.id.favorate);
-            this.notesButton = (ImageButton)itemView.findViewById(R.id.noteBtn);
-            this.textHowmanynotes = (TextView)itemView.findViewById(R.id.howManyNotes);
+            this.notesButton = itemView.findViewById(R.id.noteBtn);
+//            this.textHowmanynotes = (TextView)itemView.findViewById(R.id.howManyNotes);
 
 //            this.imageViewIcon = (ImageView) itemView.findViewById(R.id.imageView);
-            Log.d("adapter2", this.textViewName.toString());
+            new Util().printLog("adapter2", this.textViewName.toString());
 
 
 //            imageButton.setOnClickListener(
@@ -79,7 +82,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.cards_layout, parent, false);
 
-        Log.d("onCreateViewHolder",view == null ? "null" : "valid");
+        new Util().printLog("onCreateViewHolder",view == null ? "null" : "valid");
 
         view.setOnClickListener(HomeFragment.myOnClickListener);
 
@@ -93,7 +96,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         TextView textViewName = holder.textViewName;
         TextView textViewVersion = holder.textViewVersion;
         ImageButton imageButton = holder.imageButton;
-        ImageButton notesButton = holder.notesButton;
+        Button notesButton = holder.notesButton;
         TextView textHowmanynotes = holder.textHowmanynotes;
 
 //        ImageView imageView = holder.imageViewIcon;
@@ -102,11 +105,12 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 //        String version = dataSet.get(listPosition).getVersion();
         if(dataSet.get(listPosition) == null) return;
 
+
         String name = dataSet.get(listPosition).getTitle();
         String version = dataSet.get(listPosition).getBody();
 
-        Log.d("onBindViewHolder", name +"," +version);
-        Log.d("onBindViewHolder", textViewName == null ? "null" : "valid");
+        new Util().printLog("onBindViewHolder", name +"," +version);
+        new Util().printLog("onBindViewHolder", textViewName == null ? "null" : "valid");
 
         textViewName.setText(name == null ? "no data" : name);
         textViewVersion.setText(version == null ? "no data" : version);
@@ -115,21 +119,34 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         updateStarButton(name,imageButton);
         imageButton.setOnClickListener(HomeFragment.myOnClickListener);
         notesButton.setOnClickListener(HomeFragment.myOnClickListener);
-        showHowmanynotes(textHowmanynotes, name);
-        hideNotes(textHowmanynotes, notesButton);
+//        showHowmanynotes(textHowmanynotes, name);
+        showHowmanynotes(notesButton, name);
+
+        if(version.startsWith("Scripture taken from")){
+            hideNotes(textHowmanynotes, notesButton);
+            imageButton.setVisibility(View.GONE);
+        }else{
+            showNotes(textHowmanynotes, notesButton);
+            imageButton.setVisibility(View.VISIBLE);
+        }
+
     }
-    private void showHowmanynotes(TextView view, String title){
+    private void showHowmanynotes(Button view, String title){
         int notes = MainActivity.notesData.hasHowmanynotes(title);
-        if(notes == 0)
-            view.setText("");
-        else
-            view.setText("" + notes);
+        view.setText(MainActivity.notesData.expressionNotes(notes));
+//        if(notes == 0)
+//            view.setText("New Note");
+//        else{
+//            view.setText("" + notes + " notes");
+//        }
     }
     private void updateStarButton(String name, ImageButton imageButton){
         if(MainActivity.starData.isStar(name))
             imageButton.setImageResource(R.drawable.ic_star_gold_24dp);
+        else
+            imageButton.setImageResource(R.drawable.ic_star_border_black_24dp);
     }
-    private void updateCardColor(CardView view, String name, ImageButton imageButton, ImageButton notesButton){
+    private void updateCardColor(CardView view, String name, ImageButton imageButton, Button notesButton){
         if(name.startsWith("[ESV]")){
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.esv));
             view.setTag("esv");
@@ -185,10 +202,15 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         }
 
     }
-    private void hideNotes(TextView text, ImageButton view){
-        text.setVisibility(View.GONE);
+    public void hideNotes(TextView text, Button view){
+//        text.setVisibility(View.GONE);
         view.setVisibility(View.GONE);
     }
+    public void showNotes(TextView text, Button view){
+//        text.setVisibility(View.GONE);
+        view.setVisibility(View.VISIBLE);
+    }
+
 
     @Override
     public int getItemCount() {
@@ -197,7 +219,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
     public String getFirstItem(){
         if(dataSet.size() > 0)
-        return dataSet.get(0).getBody();
+        return dataSet.get(0) != null ? dataSet.get(0).getBody() : "";
         else return "";
     }
 

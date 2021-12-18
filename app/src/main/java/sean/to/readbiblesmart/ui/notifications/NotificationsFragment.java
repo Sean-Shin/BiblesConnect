@@ -7,9 +7,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Scroller;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -28,10 +30,12 @@ import sean.to.readbiblesmart.MainActivity;
 import sean.to.readbiblesmart.NotesActivity;
 import sean.to.readbiblesmart.R;
 import sean.to.readbiblesmart.util.BibleUtil;
+import sean.to.readbiblesmart.util.Util;
 
 public class NotificationsFragment extends Fragment {
 
     private NotificationsViewModel notificationsViewModel;
+    private View root;
 //    private String title;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -40,7 +44,9 @@ public class NotificationsFragment extends Fragment {
 //                ViewModelProviders.of(this).get(NotificationsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
         final TextView textView = root.findViewById(R.id.text_notifications);
-        ImageButton showNotes = root.findViewById(R.id.addNotes);
+//        final TextView textlabelView = root.findViewById(R.id.notelabel);
+        Button showNotes = root.findViewById(R.id.addNotes);
+        this.root = root;
 
         showFavorite(root, textView);
 
@@ -68,11 +74,14 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
+        hideNotes(showNotes);
+
         return root;
     }
     public void showFavorite(final View view, TextView textView){
         final ChipGroup chipGroup = view.findViewById(R.id.tag_group);
-        final TextView textlabelView = view.findViewById(R.id.notelabel);
+//        final TextView textlabelView = view.findViewById(R.id.notelabel);
+        final Button showNotes = view.findViewById(R.id.addNotes);
 //        JSONObject object = new JSONObject(json);
 //        Iterator keys = object.keys();
 //        while(keys.hasNext()) {
@@ -102,9 +111,10 @@ public class NotificationsFragment extends Fragment {
                         String body = new BibleUtil().readVerse(title);
                         TextView textView = view.findViewById(R.id.text_notifications);
                         textView.setText(body);
+                        showNotes(showNotes);
                         int notes = MainActivity.notesData.hasHowmanynotes(title);
-                        textlabelView.setText(MainActivity.notesData.expressionNotes(notes));
-                        ImageButton showNotes = view.findViewById(R.id.addNotes);
+                        showNotes.setText(MainActivity.notesData.expressionNotes(notes));
+//                        Button showNotes = view.findViewById(R.id.addNotes);
                         showNotes.setTag(title);
 
                     }
@@ -115,51 +125,90 @@ public class NotificationsFragment extends Fragment {
 
         }
 
-        ImageButton showNotes = view.findViewById(R.id.addNotes);
+//        ImageButton showNotes = view.findViewById(R.id.addNotes);
 
         if(chips == 0){
             chipGroup.setVisibility(View.GONE);
             showNotes.setVisibility(View.GONE);
-            textlabelView.setVisibility(View.GONE);
+//            textlabelView.setVisibility(View.GONE);
             textView.setText("No favorites yet. Please press star buttons when you find good verses.");
+            hideNotes(showNotes);
         }else {
             chipGroup.setVisibility(View.VISIBLE);
             showNotes.setVisibility(View.VISIBLE);
-            textlabelView.setVisibility(View.VISIBLE);
+//            textlabelView.setVisibility(View.VISIBLE);
+            showNotes(showNotes);
         }
-        hideNotes(textlabelView,showNotes);
+//        hideNotes(textlabelView,showNotes);
     }
     private void callNotesActivity(String title){
+        if(title == null){
+            new Util().toastMessage(getContext(),"Not supported");
+            return;
+        }
         Intent intent = new Intent(getActivity().getApplicationContext(), NotesActivity.class);
         intent.putExtra("title", title);
         startActivity(intent);
     }
-    private void hideNotes(TextView text, ImageButton view){
-        text.setVisibility(View.GONE);
+    private void hideNotes(Button view){
+//        text.setVisibility(View.GONE);
         view.setVisibility(View.GONE);
     }
-//    public String readVerse(String query){
+    private void showNotes(Button view){
+//        text.setVisibility(View.VISIBLE);
+        view.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkChips();
+
+    }
+    private void checkChips(){
+        final ChipGroup chipGroup = root.findViewById(R.id.tag_group);
+
+//        Iterator keys = MainActivity.starData.starList.keys();
+//        int chips = 0;
+//        while(keys.hasNext()) {
+//            String dynamicKey = (String) keys.next();
+//
+//            if (!MainActivity.starData.isStar(dynamicKey)) {
+//               chipGroup.get
+//            }
+//            chips++;
+//        }
+
+        for (int i = 0; i < chipGroup.getChildCount(); i++) {
+            Chip chip = ((Chip) chipGroup.getChildAt(i));
+            String title = chip.getText().toString();
+            if (!MainActivity.starData.isStar(title)){
+                chipGroup.removeView(chip);
+            }
+        }
+    }
+    //    public String readVerse(String query){
 //        String book = "esv";
 //        String title = query;
 //        int index = 6;
 //        if(query.startsWith("[ESV]")){
 //            query = query.substring(index);
-//            Log.d("=========",query);
+//            new Util().printLog("=========",query);
 //        }
 //        if(query.startsWith("[KJV]")){
 //            query = query.substring(index);
 //            book = "kjv";
-//            Log.d("=========",query);
+//            new Util().printLog("=========",query);
 //        }
 //        if(query.startsWith("[NIV]")){
 //            query = query.substring(index);
 //            book = "niv";
-//            Log.d("=========",query);
+//            new Util().printLog("=========",query);
 //        }
 //        if(query.startsWith("[NLT]")){
 //            query = query.substring(index);
 //            book = "nlt";
-//            Log.d("=========",query);
+//            new Util().printLog("=========",query);
 //        }
 //        String[] result = new BibleUtil().parseQuery(query);
 //        String body = new BibleUtil().readBible(book,result[0], result[1], result[2]);
@@ -167,3 +216,24 @@ public class NotificationsFragment extends Fragment {
 //        return title + "\n\n"+ body;
 //    }
 }
+
+//
+//<TextView
+//            android:id="@+id/notelabel"
+//                    android:layout_width="wrap_content"
+//                    android:layout_height="wrap_content"
+//                    android:layout_gravity="left"
+//                    android:layout_marginStart="8dp"
+//                    android:layout_marginTop="8dp"
+//                    android:layout_marginRight="8dp"
+//                    android:layout_marginBottom="8dp"
+//                    android:textColor="@color/colorBlue"
+//
+//                    android:text="0 notes" />
+//<ImageButton
+//            android:id="@+id/addNotes1"
+//                    android:layout_width="40dp"
+//                    android:layout_height="40dp"
+//                    android:layout_alignParentRight="true"
+//                    android:background="@null"
+//                    android:src="@drawable/ic_create_black_24dp" />

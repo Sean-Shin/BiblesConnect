@@ -42,6 +42,8 @@ public class BibleModel {
     }
 
     public int getBibleIndex(String bible, int flag){
+        if(bible == null)
+            return -1;
         for(int i=0; i < 66; i++){
             if(bible.toLowerCase().equals(data.bibleNames[i].toLowerCase()))
                 return i;

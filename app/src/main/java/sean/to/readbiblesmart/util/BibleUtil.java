@@ -23,7 +23,7 @@ public class BibleUtil {
 
         if(query.length() > 0 && query.charAt(0) == '1'){
             query = query.replaceFirst("1 ","1_");
-            Log.d("new query", query);
+            new Util().printLog("new query", query);
         }
         else if(query.length() > 0 && query.charAt(0) == '2'){
             query = query.replaceFirst("2 ","2_");
@@ -69,7 +69,7 @@ public class BibleUtil {
         String lChapter = "1";
         String lVerse = "1";
         try {
-//            Log.d("json read", bible + " " + chapter + " " + verse);
+//            new Util().printLog("json read", bible + " " + chapter + " " + verse);
 
             String validBible = new BibleModel().getBibleIndex(bible);
             // get JSONObject from JSON file
@@ -97,7 +97,7 @@ public class BibleUtil {
             }
 
             String body = objChapter.getString(lVerse);
-            Log.d("json body", body);
+            new Util().printLog("json body", body);
 
             if(body != null){
                 return new BibleModel("["+bibleType.toUpperCase() + "] " +bible +" "+ lChapter + " "+ lVerse , body);
@@ -113,7 +113,7 @@ public class BibleUtil {
 
 
 //            JSONArray userArray = obj.toJSONArray(obj.names());
-//            Log.d("json names", userArray.toString());
+//            new Util().printLog("json names", userArray.toString());
 //            JSONArray songsArray = songsObject.toJSONArray(songsObject.names());
 
 
@@ -122,7 +122,7 @@ public class BibleUtil {
 //                // create a JSONObject for fetching single user data
 //                JSONObject userDetail = jsonArray.getJSONObject(i);
 //                if(userDetail != null)
-//                    Log.d("json", userDetail.getString("1"));
+//                    new Util().printLog("json", userDetail.getString("1"));
 //                // fetch email and name and store it in arraylist
 ////                personNames.add(userDetail.getString("name"));
 ////                emailIds.add(userDetail.getString("email"));
@@ -213,25 +213,29 @@ public class BibleUtil {
     public String readBody(String query, boolean hasTitle){
         String book = "esv";
         String title = query;
+
+        if(query == null)
+            return "";
+
         int index = 6;
         if(query.startsWith("[ESV]")){
             query = query.substring(index);
-            Log.d("=========",query);
+            new Util().printLog("=========",query);
         }
         if(query.startsWith("[KJV]")){
             query = query.substring(index);
             book = "kjv";
-            Log.d("=========",query);
+            new Util().printLog("=========",query);
         }
         if(query.startsWith("[NIV]")){
             query = query.substring(index);
             book = "niv";
-            Log.d("=========",query);
+            new Util().printLog("=========",query);
         }
         if(query.startsWith("[NLT]")){
             query = query.substring(index);
             book = "nlt";
-            Log.d("=========",query);
+            new Util().printLog("=========",query);
         }
         String[] result = new BibleUtil().parseQuery(query);
         String body = new BibleUtil().readBible(book,result[0], result[1], result[2]);
