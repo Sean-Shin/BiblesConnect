@@ -1,6 +1,7 @@
 package sean.to.readbiblesmart.ui.notifications;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -37,6 +39,15 @@ public class NotificationsFragment extends Fragment {
     private NotificationsViewModel notificationsViewModel;
     private View root;
 //    private String title;
+
+    int[][] closeIconStates = {
+            { android.R.attr.state_pressed },
+            { android.R.attr.state_focused, android.R.attr.state_hovered },
+            { android.R.attr.state_focused },
+            { android.R.attr.state_hovered },
+            { android.R.attr.state_enabled }, {} };
+
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -103,6 +114,7 @@ public class NotificationsFragment extends Fragment {
 
                 chip.setText(dynamicKey);
                 chip.setTag(dynamicKey);
+                closeChip(chip);
                 chips++;
                 chip.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -162,10 +174,10 @@ public class NotificationsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        checkChips();
+        checkChipStatus();
 
     }
-    private void checkChips(){
+    private void checkChipStatus(){
         final ChipGroup chipGroup = root.findViewById(R.id.tag_group);
 
 //        Iterator keys = MainActivity.starData.starList.keys();
@@ -186,6 +198,33 @@ public class NotificationsFragment extends Fragment {
                 chipGroup.removeView(chip);
             }
         }
+    }
+    private void closeChip(final Chip chip){
+        chip.setCloseIconVisible(true);
+
+        int fgColor = chip.getCurrentTextColor();
+
+        int[] closeIconColors = {
+                ColorUtils.setAlphaComponent(fgColor, 0xff),
+                ColorUtils.setAlphaComponent(fgColor, 0xff),
+                ColorUtils.setAlphaComponent(fgColor, 0xde),
+                ColorUtils.setAlphaComponent(fgColor, 0xb8),
+                ColorUtils.setAlphaComponent(fgColor, 0x8a),
+                ColorUtils.setAlphaComponent(fgColor, 0x36) };
+
+        ColorStateList closeIconTint = new ColorStateList(closeIconStates, closeIconColors);
+        chip.setCloseIconTint(closeIconTint);
+
+        final ChipGroup chipGroup = root.findViewById(R.id.tag_group);
+        chip.setOnCloseIconClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String title = chip.getTag().toString();
+                chipGroup.removeView(chip);
+                MainActivity.starData.setStar(title, false);
+            }
+        });
     }
     //    public String readVerse(String query){
 //        String book = "esv";
