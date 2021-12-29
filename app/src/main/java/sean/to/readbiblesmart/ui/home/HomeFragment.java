@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -71,7 +72,10 @@ public class HomeFragment extends Fragment {
     private static SearchView editsearch;
     private static ListView listView;
     private static String previousQuery;
-//    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private static int startIndex;
+    static ArrayList<String> books;
+
+    //    private ActivityResultLauncher<Intent> activityResultLauncher;
     ImageButton imageButton;
     ArrayList<String> list;
     ArrayAdapter<String > listadapter;
@@ -114,6 +118,10 @@ public class HomeFragment extends Fragment {
         previousQuery = MainActivity.previousQuery;//"";
         editsearch = (SearchView) root.findViewById(R.id.searchbar);
         data = new ArrayList<BibleModel>();
+        books = new ArrayList<String>();
+
+        startIndex = 0;
+        readBooksOrder();
 
 //        initBible();
 
@@ -238,8 +246,57 @@ public class HomeFragment extends Fragment {
         guideText();
 
 
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+
         return root;
     }
+
+    private ItemTouchHelper.Callback createHelperCallback() {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback =
+                new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                        0) {
+//                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
+                    @Override
+                    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                          RecyclerView.ViewHolder target) {
+                        moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                        return true;
+                    }
+
+                    @Override
+                    public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                        deleteItem(viewHolder.getAdapterPosition());
+                    }
+                };
+        return simpleItemTouchCallback;
+    }
+    private void moveItem(int oldPos, int newPos) {
+
+        BibleModel bm = data.get(oldPos);
+        data.remove(oldPos);
+        data.add(newPos, bm);
+//        listData.remove(oldPos);
+//        listData.add(newPos, item);
+        new BibleUtil().reorderBible(books,oldPos, newPos);
+        saveBookOrder();
+        adapter.notifyItemMoved(oldPos, newPos);
+    }
+    private void deleteItem(final int position) {
+        data.remove(position);
+        adapter.notifyItemRemoved(position);
+    }
+    private void readBooksOrder(){
+//        books.add("esv");
+//        books.add("kjv");
+//        books.add("niv");
+//        books.add("nlt");
+
+        readBookOrder();
+    }
+
 //    private void underlineButton(){
 //        Button button = (Button) getActivity().findViewById(R.id.historyBtn);
 //        if(button != null)
@@ -328,7 +385,7 @@ public class HomeFragment extends Fragment {
                 return;
             }
             data = ((CustomAdapter)adapter).removeAll(data);
-            data = new BibleUtil().readBible(result[0], result[1], result[2], data);
+            data = new BibleUtil().readBible(result[0], result[1], result[2], data, books);
 //                    data.add(bm);
 
             String newQuery = result[0] + " " + result[1] + " " + result[2];
@@ -396,7 +453,7 @@ public class HomeFragment extends Fragment {
 
 
         data = ((CustomAdapter)adapter).removeAll(data);
-        data = new BibleUtil().readBible(result[0], result[1], result[2], data);
+        data = new BibleUtil().readBible(result[0], result[1], result[2], data, books);
 //                    data.add(bm);
 
         String newQuery = result[0] + " " + result[1] + " " + result[2];
@@ -442,14 +499,18 @@ public class HomeFragment extends Fragment {
             int lastChapter = new BibleModel().getLastChapter(index-1);
             int lastVersus = BibleData.verses[index-1][lastChapter-1];
 
-            new Util().printLog("***", " "+ index +","+ lastVersus + ","+ lastChapter);
+
+            new Util().printLog("***", "chapter "+ chapter + " "  + index +","+ lastVersus + ","+ lastChapter );
+
             if(ch <=0 ){
                 result[0] = BibleData.bibleNames[index-1];
                 result[1] = ""+lastChapter;
                 result[2] = ""+lastVersus;
             }else{
                 result[1] = "" + ch;
-                result[2] = ""+lastVersus;
+                int prelastVerus = BibleData.verses[index][ch-1];
+                result[2] = ""+ prelastVerus; //lastVersus;
+                new Util().printLog("***", "chapter "+ chapter + " "  + index +","+ lastVersus + ","+ lastChapter + "," + prelastVerus);
             }
 
         }else{
@@ -457,7 +518,7 @@ public class HomeFragment extends Fragment {
         }
 
         data = ((CustomAdapter)adapter).removeAll(data);
-        data = new BibleUtil().readBible(result[0], result[1], result[2], data);
+        data = new BibleUtil().readBible(result[0], result[1], result[2], data, books);
 //                    data.add(bm);
 
         String newQuery = result[0] + " " + result[1] + " " + result[2];
@@ -571,15 +632,35 @@ public class HomeFragment extends Fragment {
 //        }
     }
     public void saveBibleRead(String bible){
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.previousBible),bible);
-        editor.apply();
+//        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPref.edit();
+//        editor.putString(getString(R.string.previousBible),bible);
+//        editor.apply();
+        new Util().savePrefData(getString(R.string.previousBible),bible,getActivity());
     }
     public String readBibleLast(){
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-//        int defaultValue = getResources().getInteger(R.integer.saved_high_score_default_key);
-        return sharedPref.getString(getString(R.string.previousBible),"Genesis 1 1");
+//        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+////        int defaultValue = getResources().getInteger(R.integer.saved_high_score_default_key);
+//        return sharedPref.getString(getString(R.string.previousBible),"Genesis 1 1");
+        return new Util().readPrefData(getString(R.string.previousBible),"Genesis 1 1",getActivity());
+    }
+    public void saveBookOrder(){
+        String value = "";
+        for(int i=0; i<books.size();i++){
+            value += books.get(i) + ",";
+        }
+        value = value.substring(0,value.length()-1);
+
+        new Util().printLog("***************", value);
+        new Util().savePrefData("sean.shin.app.books", value, getActivity());
+
+    }
+    public void readBookOrder(){
+        String value = new Util().readPrefData("sean.shin.app.books","esv,kjv,niv,nlt",getActivity());
+        String[] splitStr = value.split("\\s*,\\s*");
+        for(int i=0; i<splitStr.length;i++){
+            books.add(splitStr[i]);
+        }
     }
 
 
@@ -587,8 +668,13 @@ public class HomeFragment extends Fragment {
     public void onStart() {
 
         new Util().printLog("**","home:onStart" );
-        previousQuery = readBibleLast();
-        updateKeyword(previousQuery);
+
+        if(previousQuery != null && startIndex == 0){
+            previousQuery = readBibleLast();
+            startIndex ++;
+            updateKeyword(previousQuery);
+        }
+
 //        MainActivity.previousQuery;
 //        if(previousQuery.length() == 0){
 //            String query = readBibleLast();
@@ -691,4 +777,4 @@ public class HomeFragment extends Fragment {
 //                                android:background="@null"
 //                                android:paddingRight="32dp"
 //                                android:src="@drawable/ic_create_black_24dp" />
-//                    
+//

@@ -185,6 +185,21 @@ public class BibleUtil {
         data.add(nlt);
         return data;
     }
+    public ArrayList<BibleModel> readBible(String bible, String chapter, String verse, ArrayList<BibleModel> data, ArrayList<String> books) {
+
+        data.add(readJsonFile(books.get(0), bible, chapter,verse));
+        data.add(readJsonFile(books.get(1), bible, chapter,verse));
+        data.add(readJsonFile(books.get(2), bible, chapter,verse));
+        data.add(readJsonFile(books.get(3), bible, chapter,verse));
+
+        return data;
+    }
+    public ArrayList<String> reorderBible(ArrayList<String> books, int oldIndex, int newIndex){
+        String bm = books.get(oldIndex);
+        books.remove(oldIndex);
+        books.add(newIndex, bm);
+        return books;
+    }
     public String readBible(String book, String bible, String chapter, String verse){
         BibleModel  result = readJsonFile(book, bible, chapter,verse);
         return result.getBody();

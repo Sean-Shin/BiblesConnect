@@ -68,9 +68,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 //                            Log.v("EditText", mEdit.getText().toString());
 //                        }
 //                    });
+
+
         }
 
+
     }
+
 
     public CustomAdapter(ArrayList<BibleModel> data) {
         this.dataSet = data;
@@ -87,8 +91,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         view.setOnClickListener(HomeFragment.myOnClickListener);
 
         MyViewHolder myViewHolder = new MyViewHolder(view);
+
         return myViewHolder;
     }
+
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int listPosition) {
@@ -237,4 +243,5 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
         return data;
 //        data.removeAll(data);
     }
+
 }
