@@ -400,7 +400,8 @@ public class HomeFragment extends Fragment {
     }
 
     public boolean isLoadingDone(){
-        if(MainActivity.esvloadingdone && MainActivity.kjvloadingdone && MainActivity.nivloadingdone && MainActivity.nltloadingdone)
+        if(MainActivity.esvloadingdone && MainActivity.kjvloadingdone && MainActivity.nivloadingdone && MainActivity.nltloadingdone
+         && MainActivity.esloadingdone && MainActivity.frloadingdone)
             return true;
         return false;
     }
@@ -656,7 +657,9 @@ public class HomeFragment extends Fragment {
 
     }
     public void readBookOrder(){
-        String value = new Util().readPrefData("sean.shin.app.books","esv,kjv,niv,nlt",getActivity());
+        String value = new Util().readPrefData("sean.shin.app.books",
+                "esv,kjv,niv,nlt,rvr,ost",getActivity());
+
         String[] splitStr = value.split("\\s*,\\s*");
         for(int i=0; i<splitStr.length;i++){
             books.add(splitStr[i]);
@@ -674,6 +677,9 @@ public class HomeFragment extends Fragment {
             startIndex ++;
             updateKeyword(previousQuery);
         }
+
+        if(adapter != null)
+            adapter.notifyDataSetChanged();
 
 //        MainActivity.previousQuery;
 //        if(previousQuery.length() == 0){
@@ -707,6 +713,14 @@ public class HomeFragment extends Fragment {
     public void onStop() {
 
         super.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        saveBibleRead(previousQuery);
+        new Util().printLog("**save",previousQuery );
+        MainActivity.previousQuery = previousQuery;
+        super.onPause();
     }
 
     @Override

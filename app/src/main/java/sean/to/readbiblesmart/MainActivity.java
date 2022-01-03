@@ -54,11 +54,15 @@ public class MainActivity extends AppCompatActivity {
     public static JSONObject kjvBibleObject;
     public static JSONObject nivBibleObject;
     public static JSONObject nltBibleObject;
+    public static JSONObject esBibleObject;
+    public static JSONObject frBibleObject;
+
     public static Context context;
     public static FragmentManager fragmentManager;
     public static HomeFragment homeFragment;
     public static DashboardFragment dashboardFragment;
     public static boolean esvloadingdone, kjvloadingdone ,nivloadingdone ,nltloadingdone;
+    public static boolean esloadingdone, frloadingdone;
     public static StarData starData;
     public static NotesData notesData;
     public static SettingsData settingsData;
@@ -76,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
         kjvloadingdone = false;
         nivloadingdone = false;
         nltloadingdone = false;
+        esloadingdone = false;
+        frloadingdone = false;
+
         previousQuery = "";
 
         starData = new StarData();
@@ -283,6 +290,11 @@ public class MainActivity extends AppCompatActivity {
         asyncBibleLoading3.execute("niv");
         AsyncBibleLoading asyncBibleLoading4 = new AsyncBibleLoading();
         asyncBibleLoading4.execute("nlt");
+
+        AsyncBibleLoading asyncBibleLoading5 = new AsyncBibleLoading();
+        asyncBibleLoading5.execute("rvr"); //es
+        AsyncBibleLoading asyncBibleLoading6 = new AsyncBibleLoading();
+        asyncBibleLoading6.execute("ost"); //fr
     }
 
     @Override
@@ -472,6 +484,16 @@ public class MainActivity extends AppCompatActivity {
 //                        result = nltBibleObject;
                         done = true;
                         break;
+                    case "rvr" : //es
+                        esBibleObject = new JSONObject(new BibleUtil().loadJSONFromAsset("rvr"));
+//                        result = nltBibleObject;
+                        done = true;
+                        break;
+                    case "ost" : //fr
+                        frBibleObject = new JSONObject(new BibleUtil().loadJSONFromAsset("ost"));
+//                        result = nltBibleObject;
+                        done = true;
+                        break;
                 }
 
             }catch (JSONException e){
@@ -501,6 +523,12 @@ public class MainActivity extends AppCompatActivity {
                        case "nlt":
                            nltloadingdone = true;
                            break;
+                       case "rvr":
+                           esloadingdone = true;
+                           break;
+                       case "ost":
+                           frloadingdone = true;
+                           break;
                    }
                    if(isLoadingDone())
                         sendMessageToFragment("loadingdone");
@@ -521,7 +549,8 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         public boolean isLoadingDone(){
-            if(esvloadingdone && kjvloadingdone && nivloadingdone && nltloadingdone)
+            if(esvloadingdone && kjvloadingdone && nivloadingdone && nltloadingdone
+             && esloadingdone && frloadingdone)
                 return true;
             return false;
         }

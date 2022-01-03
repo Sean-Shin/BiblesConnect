@@ -60,6 +60,20 @@
                 android:layout_marginLeft="16dp"
                 android:onClick="onCheckboxClicked"
                 android:text="@string/nlt" />
+            <CheckBox
+                android:id="@+id/es"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:onClick="onCheckboxClicked"
+                android:text="@string/rvr" />
+            <CheckBox
+                android:id="@+id/fr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:onClick="onCheckboxClicked"
+                android:text="@string/ost" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

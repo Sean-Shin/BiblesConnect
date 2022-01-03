@@ -153,6 +153,12 @@ public class BibleUtil {
             case "nlt":
                 result = loadJSONFromAsset(R.raw.nlt2_upload);
                 break;
+            case "rvr":
+                result = loadJSONFromAsset(R.raw.es2f_upload);
+                break;
+            case "ost":
+                result = loadJSONFromAsset(R.raw.fr2f_upload);
+                break;
             default:
                 break;
         }
@@ -187,10 +193,18 @@ public class BibleUtil {
     }
     public ArrayList<BibleModel> readBible(String bible, String chapter, String verse, ArrayList<BibleModel> data, ArrayList<String> books) {
 
-        data.add(readJsonFile(books.get(0), bible, chapter,verse));
-        data.add(readJsonFile(books.get(1), bible, chapter,verse));
-        data.add(readJsonFile(books.get(2), bible, chapter,verse));
-        data.add(readJsonFile(books.get(3), bible, chapter,verse));
+        int length = books.size();
+
+        if(length >= 4) {
+            data.add(readJsonFile(books.get(0), bible, chapter, verse));
+            data.add(readJsonFile(books.get(1), bible, chapter, verse));
+            data.add(readJsonFile(books.get(2), bible, chapter, verse));
+            data.add(readJsonFile(books.get(3), bible, chapter, verse));
+        }
+        if(length >= 6) {
+            data.add(readJsonFile(books.get(4), bible, chapter, verse));
+            data.add(readJsonFile(books.get(5), bible, chapter, verse));
+        }
 
         return data;
     }
@@ -218,6 +232,12 @@ public class BibleUtil {
                 break;
             case "nlt":
                 obj = MainActivity.nltBibleObject;
+                break;
+            case "rvr": //es
+                obj = MainActivity.esBibleObject;
+                break;
+            case "ost": //fr
+                obj = MainActivity.frBibleObject;
                 break;
         }
         return obj;
@@ -250,6 +270,16 @@ public class BibleUtil {
         if(query.startsWith("[NLT]")){
             query = query.substring(index);
             book = "nlt";
+            new Util().printLog("=========",query);
+        }
+        if(query.startsWith("[RVR]")){
+            query = query.substring(index);
+            book = "rvr";
+            new Util().printLog("=========",query);
+        }
+        if(query.startsWith("[OST]")){
+            query = query.substring(index);
+            book = "ost";
             new Util().printLog("=========",query);
         }
         String[] result = new BibleUtil().parseQuery(query);

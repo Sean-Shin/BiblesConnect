@@ -6,10 +6,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -75,6 +77,11 @@ public class NotesActivity extends AppCompatActivity {
 
         final TextView comment = findViewById(R.id.typecommet);
         ImageButton sendButton = findViewById(R.id.sendcomment);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            sendButton.setTooltipText("Save");
+        }
+
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,6 +96,7 @@ public class NotesActivity extends AppCompatActivity {
                     new Util().printLog("------", ""+data.size() );
                     adapter.notifyDataSetChanged();
                     showHowmanycomments(data.size());
+                    comment.setText("");
                 }
             }
         });
@@ -96,6 +104,8 @@ public class NotesActivity extends AppCompatActivity {
 
         cardDeco(title);
 
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(createHelperCallback());
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
 
     }
@@ -126,6 +136,39 @@ public class NotesActivity extends AppCompatActivity {
         if(title.startsWith("[NLT]")) {
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.nlt));
         }
+
+        if(title.startsWith("[RVR]")) {
+            view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.es));
+        }
+        if(title.startsWith("[OST]")) {
+            view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.fr));
+        }
+    }
+    private ItemTouchHelper.Callback createHelperCallback() {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback =
+                new ItemTouchHelper.SimpleCallback(0,
+                        ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                    //                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
+                    @Override
+                    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                          RecyclerView.ViewHolder target) {
+//                        moveItem(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                        return true;
+                    }
+
+                    @Override
+                    public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                        deleteItem(viewHolder.getAdapterPosition());
+                    }
+                };
+        return simpleItemTouchCallback;
+    }
+    private void deleteItem(final int position) {
+        data.remove(position);
+        adapter.notifyItemRemoved(position);
+
+        showHowmanycomments(data.size());
+        MainActivity.notesData.delNotes(title, position);
     }
     public ArrayList<NoteModel> readNotes(String tag, ArrayList<NoteModel> data){
         JSONObject result = MainActivity.notesData.getNotes(tag);

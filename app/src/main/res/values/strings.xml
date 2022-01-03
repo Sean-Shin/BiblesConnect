@@ -8,18 +8,23 @@
     <string name="previousBible">sean.shin.455.bible</string>
     <string name="biblenamelist">This is 66 names in a bible. You can choose one.</string>
     <string name="myself">Bibles Connect is for people who want to read different bibles at the same time.\n</string>
-    <string name="version">Version : 0.8.11</string>
+    <string name="version">Version : 0.8.13</string>
     <string name="developer">\nDeveloper : Sean Shin</string>
     <string name="license_overview">This app is distributed under the Creative Commons BY-NC license. All the Bible versions are property of their respective owners. All rights reserved to the owners.</string>
     <string name="license">Scripture taken from the HOLY BIBLE, NEW INTERNATIONAL VERSION®. NIV®. Copyright © 1973, 1978, 1984 by International Bible Society. Used by permission of Zondervan. All rights reserved worldwide.
         \n\nScripture quotations from The Authorized (King James) Version. Rights in the Authorized Version in the United Kingdom are vested in the Crown. Reproduced by permission of the Crown’s patentee, Cambridge University Press
         \n\nScripture quotations marked (NLT) are taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2007 by Tyndale House Foundation. Used by permission of Tyndale House Publishers, Inc., Carol Stream, IL 60188. All rights reserved.
-        \n\nScripture quotations are from The ESV® Bible (The Holy Bible, English Standard Version®), copyright © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved.</string>
+        \n\nScripture quotations are from The ESV® Bible (The Holy Bible, English Standard Version®), copyright © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved.
+        \n\nScripture quotations marked (RVR 1960) are from the Reina Valera © 1960. El texto Biblico ha sido tomado de la version Reina-Valera © 1960 Sociedades Biblicas en America Latina ; © renovado 1988 Sociedades Biblicas Unidas. Utilizado con permiso.
+        \n\nOstervald French Bible, a revision of the French translation as public domain, in particular, was long well known and much valued in Britain.
+    </string>
     <string name="title_activity_settings">Settings</string>
     <string name="esv">ESV, English Standard Version</string>
     <string name="kjv">KJV, King James Version</string>
     <string name="niv">NIV, NEW INTERNATIONAL VERSION</string>
     <string name="nlt">NLT, New Living Translation</string>
+    <string name="rvr">RVR, La Biblia Reina-Valera Spanish Translation</string>
+    <string name="ost">OST, Ostervald French Translation</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>

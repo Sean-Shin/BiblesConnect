@@ -73,11 +73,30 @@ public class SettingsData {
         if(settingsList.length() == 0) return true;
 
         try{
-            return settingsList.getBoolean(name);
+
+            return settingsList.has(name) ? settingsList.getBoolean(name) : (isEnglishVersion(name) ? true : false);
         }catch (JSONException e){
             e.printStackTrace();
-            return true;
+
+            return isEnglishVersion(name) ? true : false;
         }
 //        return false;
+    }
+    private boolean isEnglishVersion(String name){
+        boolean ret = true;
+        switch (name){
+            case "esv" :
+                break;
+            case "kjv" :
+                break;
+            case "niv" :
+                break;
+            case "nlt" :
+                break;
+            default:
+                ret = false;
+                break;
+        }
+        return ret;
     }
 }

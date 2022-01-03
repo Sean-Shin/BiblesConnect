@@ -1,5 +1,7 @@
 package sean.to.readbiblesmart;
 
+import android.graphics.Typeface;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +42,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             this.textViewVersion = (TextView) itemView.findViewById(R.id.textViewVersion);
             this.parentView = (CardView)itemView.findViewById(R.id.card_view);
             this.imageButton = (ImageButton)itemView.findViewById(R.id.favorate);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                this.imageButton.setTooltipText("Favorite");
+            }
+
             this.notesButton = itemView.findViewById(R.id.noteBtn);
+
 //            this.textHowmanynotes = (TextView)itemView.findViewById(R.id.howManyNotes);
 
 //            this.imageViewIcon = (ImageView) itemView.findViewById(R.id.imageView);
@@ -189,6 +197,24 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             setEffect(view);
             hideCard(view, "nlt");
         }
+        else if(name.startsWith("[RVR]")){ //es
+            view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.es));
+            view.setTag("rvr");
+            imageButton.setTag(name);
+            notesButton.setTag(name);
+//            imageButton.setTag("nlt");
+            setEffect(view);
+            hideCard(view, "rvr");
+        }
+        else if(name.startsWith("[OST]")){ //fr
+            view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(),R.color.fr));
+            view.setTag("ost");
+            imageButton.setTag(name);
+            notesButton.setTag(name);
+//            imageButton.setTag("nlt");
+            setEffect(view);
+            hideCard(view, "ost");
+        }
 
     }
     private void setEffect(CardView view){
@@ -234,6 +260,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
 
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, data.size());
+    }
+    public void update(){
+        notifyDataSetChanged();
     }
     public ArrayList<BibleModel> removeAll(ArrayList<BibleModel> data){
         int size = data.size();

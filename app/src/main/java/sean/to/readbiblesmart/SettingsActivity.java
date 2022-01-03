@@ -42,6 +42,14 @@ public class SettingsActivity extends AppCompatActivity {
         boolean nlt = MainActivity.settingsData.isSettings("nlt");
         CheckBox ntlCheck = (CheckBox)findViewById(R.id.nlt);
         ntlCheck.setChecked(nlt);
+
+        boolean es = MainActivity.settingsData.isSettings("rvr");
+        CheckBox esCheck = (CheckBox)findViewById(R.id.es);
+        esCheck.setChecked(es);
+
+        boolean fr = MainActivity.settingsData.isSettings("ost");
+        CheckBox frCheck = (CheckBox)findViewById(R.id.fr);
+        frCheck.setChecked(fr);
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
@@ -68,6 +76,12 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
             case R.id.nlt:
                 sendMessage("nlt", checked);
+                break;
+            case R.id.es:
+                sendMessage("rvr", checked);
+                break;
+            case R.id.fr:
+                sendMessage("ost", checked);
                 break;
 
         }

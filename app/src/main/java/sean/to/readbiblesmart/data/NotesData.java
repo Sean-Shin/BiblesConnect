@@ -50,6 +50,42 @@ public class NotesData  {
             return null;
         }
     }
+    public void delNotes(String title, int index){
+        try {
+            JSONObject previousObject = notelist.has(title) ? notelist.getJSONObject(title) : null;
+
+            if(previousObject != null){
+                int total = previousObject.getInt("total");
+
+                if(total > 0){
+                    previousObject.put("total",total-1);
+                    String keyIndex = Integer.toString(index);
+                    previousObject.remove(keyIndex);
+
+                    int newIndex = 0;
+                    JSONObject newObject = new JSONObject();
+                    newObject.put("total", total -1);
+                    for(int i=0; i < total;i++){
+                        String key= Integer.toString(i+1);
+                        if(!keyIndex.equals(key)){
+                            newIndex++;
+                            JSONObject jobj = previousObject.getJSONObject(key);
+                            newObject.put(Integer.toString(newIndex),jobj);
+                        }
+                    }
+
+                    notelist.remove(title);
+                    notelist.put(title,newObject);
+
+                    new Util().printLog("--del--", notelist.toString());
+
+                }
+            }
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
     public void putNotes(String title, String note){
 
         try {
@@ -88,7 +124,7 @@ public class NotesData  {
 //                    total = Integer.parseInt(object.toString());
 //                else
 //                total = previousObject.getInt("total");
-                return previousObject.getInt("total");
+                return previousObject.has("total") ? previousObject.getInt("total") : 0;
             }
         }catch (JSONException e){
             e.printStackTrace();
